@@ -1,0 +1,133 @@
+const mongoose = require('mongoose');
+
+// MongoDB URI
+const MONGO_URI = 'mongodb://localhost:27017/Week8';
+
+// Connect to MongoDB
+mongoose.connect(MONGO_URI, { useUnifiedTopology: true, useNewUrlParser: true });
+
+const db = mongoose.connection;
+
+// Handle connection errors
+db.on('error', function (err) {
+  console.log('Error occurred during connection: ' + err);
+});
+
+// Connection successful
+db.once('connected', function () {
+  console.log(`Connected to ${MONGO_URI}`);
+});
+
+// Define the Person Schema
+const PersonSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  age: Number,
+  gender: String,
+  salary: Number,
+});
+
+// Create a model named 'Person' with collection 'personCollection'
+const personModel = mongoose.model('Person', PersonSchema, 'personCollection');
+
+// Create a new document
+const doc1 = new personModel({
+  name: 'Yousuf',
+  age: 44,
+  gender: 'Male',
+  salary: 3456,
+});
+
+// Save the document to the database
+doc1
+  .save()
+  .then((doc) => {
+    console.log('New document has been added to your database:', doc);
+  })
+  .catch((err) => {
+    console.error('Error saving document:', err);
+  });
+
+manypersons=[{ name: 'Simon',age:42,Gender:"Male",Salary:3456 }
+ ,{ name: 'Neesha',age:23,Gender:"Female",Salary:1000 }
+ ,{ name: 'Mary',age:27,Gender:"Female",Salary:5402 },
+ { name: 'Mike',age:40,Gender:"Male",Salary:4519 }
+ ]
+
+
+   personModel.insertMany(manypersons).then(function(){
+      console.log("Data inserted") // Success
+   }).catch(function(error){
+      console.log(error) // Failure
+ }); 
+
+ // finding all the documents in the collection
+ personModel.find({})                    // find all users
+
+        .sort({Salay: 1})                // sort ascending by firstName
+        .select('name Salay age')// Name and salary only
+        .limit(10)    // limit to 10 items
+        .exec()                    // execute the query
+        .then(docs => {
+            console.log("showing multiple documents")
+            docs.forEach(function(Doc) {
+                console.log(Doc.age,Doc.name);
+            })
+            })
+            .catch(err => {
+                console.error(err)
+            })
+
+
+
+var givenage=30
+personModel.find({Gender:"Female",age:{$gte:givenage}})
+      // find all users
+
+
+      .sort({Salay: 1})                // sort ascending by firstName
+        .select('name Salay age')// Name and salary only
+        .limit(10)    // limit to 10 items
+        .exec()                    // execute the query
+        .then(docs => {
+            console.log("showing age greater than 15",givenage)
+            docs.forEach(function(Doc) {
+                console.log(Doc.age,Doc.name);
+            })
+            })
+            .catch(err => {
+                console.error(err)
+            })
+
+
+// counting all the documents
+personModel.countDocuments().exec()
+           .then(count=>{
+
+                console.log("Total documents Count :", count)
+
+
+            }) .catch(err => {
+              console.error(err)
+            })
+
+
+personModel.deleteMany({ age: { $gte: 25 } })
+            .exec()
+             .then(docs=>{
+              console.log('deleted documents are:',docs);
+                   }).catch(function(error){
+                       console.log(error);
+                   });
+
+
+personModel.updateMany({ Gender: "Female" },{Salay:5555})
+            .exec()
+             .then(docs=>{
+                        console.log("update")
+                        console.log(docs); // Success
+                   }).catch(function(error){
+                        console.log(error); // Failure
+                   });
